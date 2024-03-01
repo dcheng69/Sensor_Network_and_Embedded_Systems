@@ -38,13 +38,14 @@ _start:
     @bl test_func_timer_1
     @bl test_func_timer_2
     @bl test_func_timer_3
-    bl test_func_fibonacci_dynamic_programming_1
-    bl test_func_fibonacci_dynamic_programming_2
-    bl test_func_fibonacci_dynamic_programming_3
-    bl test_func_fibonacci_dynamic_programming_4
-    bl test_func_fibonacci_dynamic_programming_5
-    bl test_func_fibonacci_dynamic_programming_6
-    bl test_func_fibonacci_dynamic_programming_7
+    /* Test case for the fibonacci calculating code */
+    @bl test_func_fibonacci_dynamic_programming_1
+    @bl test_func_fibonacci_dynamic_programming_2
+    @bl test_func_fibonacci_dynamic_programming_3
+    @bl test_func_fibonacci_dynamic_programming_4
+    @bl test_func_fibonacci_dynamic_programming_5
+    @bl test_func_fibonacci_dynamic_programming_6
+    @bl test_func_fibonacci_dynamic_programming_7
 
 @ --------------------------------------------
 @ Test: Test the result of func_fibonacci_dynamic_programming

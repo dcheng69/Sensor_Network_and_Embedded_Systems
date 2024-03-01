@@ -22,11 +22,25 @@ F 0 = 0, F 1 = 1, and F n = F n−1 + F n−2 for n > 1.
 
 Support **Hex** and **Decimal** format display. Display module easy to reuse for other project.
 
-![System_Overview_Lab1.drawio](/home/clay/Share/ECE9047 Sensor Networks & Embedded Systems/Assignment/Sensor_Network_and_Embedded_Systems/Documentation/res/System_Overview_Lab1.drawio.png)
+![System_Overview_Lab1.drawio](../Documentation/res/System_Overview_Lab1.drawio.png)
 
 # Implementation
 
+## Fibonacci Module
+
+https://github.com/dcheng69/Sensor_Network_and_Embedded_Systems/commit/75cc69fbe06fb69d6c54c58deb11e45f37233c9f
+
+Use Dynamic Programming [5] technique, we would be able to calculate the Fibonacci values for a given input quick and optimised speed. In order to do this we would need to set up a space of memory used as an array! like below.
+
+![image-20240301113405604](../Documentation/res/image-20240301113405604.png)
+
+The flow chart of the Programming is listed below:
+
+![Fibonacci.draw.io.drawio](../Documentation/res/Fibonacci.draw.io.drawio.png)
+
 ## Timer module
+
+https://github.com/dcheng69/Sensor_Network_and_Embedded_Systems/commit/056204c3f6ea666d3983e7ed07ff36d3e143ff31
 
 According to the DE-1 SoC Data Sheet [1], the timer can be loaded with a preset value, and then counts down to zero using a 100-MHz clock. The programming interface for the timer includes six 16-bit registers, as illustrated below:
 
@@ -60,6 +74,8 @@ Due to the fact that the ARM processor has a relatively higher frequency than `1
 
 
 ## Number Display Module
+
+https://github.com/dcheng69/Sensor_Network_and_Embedded_Systems/commit/c423fe358e2bb88a8656d3ca9126c54d4945f1fe
 
 As shown in the System Overview block diagram above, the number display module accept a Hex Fibonacci Number and a format as inputs, and drive the seven-segment displays to show the results.
 
@@ -133,6 +149,37 @@ We need to use Assembly to do a switch case to map the binary representation of 
 
 # Test
 
+## Fibonacci Module
+
+Based on the implementation, test the Fibonacci results with the following input values
+
+```asm
+# case 1
+# input = 0
+
+# case 2
+# input = 1
+
+# case 3
+# input = 2
+
+# case 4
+# input = 3
+
+# case 5
+# input = 4
+
+# case 6
+# input = 10
+
+# case 7
+# input = 20
+```
+
+We can also examine the memory of `fibonaci_array`
+
+![image-20240301113405604](../Documentation/res/image-20240301113405604.png)
+
 ## Number Display Module
 
 Based on the implementation, the timer is clearly not accuracy. But we can still use a LED to test this program.
@@ -148,8 +195,6 @@ Based on the implementation, the timer is clearly not accuracy. But we can still
 # 5s interval
 # light led for 5s
 ```
-
-
 
 ## Number Display Module
 
@@ -181,6 +226,8 @@ Dec format, 0x423f=999999
 
 # Analysis
 
+
+
 # Reference
 
 [1] http://www-ug.eecg.toronto.edu/desl/arm_SoC.html
@@ -190,3 +237,5 @@ Dec format, 0x423f=999999
 [3] https://www.youtube.com/watch?v=ssDBqQ5f5_0
 
 [4] https://godbolt.org/
+
+[5] https://en.wikipedia.org/wiki/Dynamic_programming
