@@ -7,12 +7,6 @@ timer_5s:   .word   500000000
 .global _start
 _start:
 
-.equ digit_byte_mask, 0b11111111
-.equ clear_all, 0x0
-
-/* Address macro for 7-segment display registers word write only */
-.equ L_display, 0xff200020 @Lower 4 digits address
-.equ H_display, 0xff200030 @ Higher 2 digits address only 16-bit used
 
     /* Test case for the func_convert_seven_segment_byte */
     @bl test_func_convert_seven_segment_byte_1
@@ -38,9 +32,9 @@ _start:
     @bl test_func_number_display_9
     @bl test_func_number_display_10
     /* Test case for the timer code */
-    bl test_func_timer_1
-    bl test_func_timer_2
-    bl test_func_timer_3
+    @bl test_func_timer_1
+    @bl test_func_timer_2
+    @bl test_func_timer_3
 
 .equ led_control_adr, 0xff200000
 @ --------------------------------------------
@@ -281,6 +275,9 @@ test_func_number_display_10:
     bx lr  @ return to the caller
 
 
+/* Address macro for 7-segment display registers word write only */
+.equ L_display, 0xff200020 @Lower 4 digits address
+.equ H_display, 0xff200030 @ Higher 2 digits address only 16-bit used
 .equ mask_control_bit, 0x00000001 @ bit-0 "1" for decimal format
 .equ mask_display_digits, 0x00ffffff @ mask the 6 digits
 .equ mask_lower_16bits, 0x0000ffff @ mask the lower 4 digits
