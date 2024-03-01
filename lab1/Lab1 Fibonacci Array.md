@@ -26,6 +26,39 @@ Support **Hex** and **Decimal** format display. Display module easy to reuse for
 
 # Implementation
 
+## Timer module
+
+According to the DE-1 SoC Data Sheet [1], the timer can be loaded with a preset value, and then counts down to zero using a 100-MHz clock. The programming interface for the timer includes six 16-bit registers, as illustrated below:
+
+![image-20240229001825724](../Documentation/res/image-20240229001825724.png)
+
+* TO provides a timeout signal which is set to 1 by the timer when it has reached a count value of zero. The TO
+  bit can be reset by writing a 0 into it.
+* RUN is set to 1 by the timer whenever it is currently counting. Write operations to the status halfword do not
+  affect the value of the RUN bit.
+* ITO is used for generating interrupts.
+* CONT affects the continuous operation of the timer. When the timer reaches a count value of zero it auto-
+  matically reloads the specified starting count value. If CONT is set to 1, then the timer will continue counting
+  down automatically. But if CONT = 0 , then the timer will stop after it has reached a count value of 0.
+* (START/STOP) is used to commence/suspend the operation of the timer by writing a 1 into the respective bit.
+
+The two 16-bit registers at addresses `0xFF202008` and `0xFF20200C` allow the period of the timer to be changed
+by setting the starting count value. The default setting provided in the DE1-SoC Computer gives a timer period
+of 125 msec. To achieve this period, the starting value of the count is 100 MHz × 125 msec = 12.5 × 10 6 . It is
+possible to capture a snapshot of the counter value at any time by performing a write to address `0xFF202010`. This
+write operation causes the current 32-bit counter value to be stored into the two 16-bit timer registers at addresses
+`0xFF202010` and `0xFF202014`. These registers can then be read to obtain the count value.
+
+
+
+Ideally, we should use the **interrupt** of the timer, but that will involve the set up of **`interrupts Vector Table`**, thus we choose to do it in a simple but less accuracy way, and leave this code for future modification!
+
+Due to the fact that the ARM processor has a relatively higher frequency than `100MHz`, so we can read the counter snapshot register to read and compare the value of the time count.
+
+![Timer_Module.draw.io.drawio](../Documentation/res/Timer_Module.draw.io.drawio.png)
+
+
+
 ## Number Display Module
 
 As shown in the System Overview block diagram above, the number display module accept a Hex Fibonacci Number and a format as inputs, and drive the seven-segment displays to show the results.
@@ -99,6 +132,24 @@ We need to use Assembly to do a switch case to map the binary representation of 
 
 
 # Test
+
+## Number Display Module
+
+Based on the implementation, the timer is clearly not accuracy. But we can still use a LED to test this program.
+
+```bash
+# case 1
+# 1s interval
+# light led for 1s
+
+# 2s interval
+# light led for 2s
+
+# 5s interval
+# light led for 5s
+```
+
+
 
 ## Number Display Module
 

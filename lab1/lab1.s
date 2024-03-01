@@ -1,4 +1,7 @@
 .data
+timer_1s:   .word   100000000 @ 0x5F5E100
+timer_2s:   .word   200000000
+timer_5s:   .word   500000000
 
 .text
 .global _start
@@ -29,11 +32,147 @@ _start:
     @bl test_func_number_display_3
     @bl test_func_number_display_4
     @bl test_func_number_display_5
-    bl test_func_number_display_6
-    bl test_func_number_display_7
-    bl test_func_number_display_8
-    bl test_func_number_display_9
-    bl test_func_number_display_10
+    @bl test_func_number_display_6
+    @bl test_func_number_display_7
+    @bl test_func_number_display_8
+    @bl test_func_number_display_9
+    @bl test_func_number_display_10
+    /* Test case for the timer code */
+    bl test_func_timer_1
+    bl test_func_timer_2
+    bl test_func_timer_3
+
+.equ led_control_adr, 0xff200000
+@ --------------------------------------------
+@ Test: Test the result of func_timer
+@
+@ Description:
+@   test_1: led will light up for 1s
+@   test_2: led will light up for 2s
+@   test_3: led will light up for 5s
+@
+@ --------------------------------------------
+test_func_timer_1:
+    push {r4, r5, r6, r7, lr}
+    @ set led light
+    ldr r4, =led_control_adr
+    mov r5, #1
+    str r5, [r4]
+
+    ldr r1, =timer_1s
+    ldr r0, [r1]
+    bl func_timer
+
+    @ clear led light
+    ldr r4, =led_control_adr
+    mov r5, #0
+    str r5, [r4]
+
+    pop {r4, r5, r6, r7, lr}
+    bx lr  @ return to the caller
+
+test_func_timer_2:
+    push {r4, r5, r6, r7, lr}
+    @ set led light
+    ldr r4, =led_control_adr
+    mov r5, #1
+    str r5, [r4]
+
+    ldr r1, =timer_2s
+    ldr r0, [r1]
+    bl func_timer
+
+    @ clear led light
+    ldr r4, =led_control_adr
+    mov r5, #0
+    str r5, [r4]
+
+    pop {r4, r5, r6, r7, lr}
+    bx lr  @ return to the caller
+
+test_func_timer_3:
+    push {r4, r5, r6, r7, lr}
+    @ set led light
+    ldr r4, =led_control_adr
+    mov r5, #1
+    str r5, [r4]
+
+    ldr r1, =timer_5s
+    ldr r0, [r1]
+    bl func_timer
+
+    @ clear led light
+    ldr r4, =led_control_adr
+    mov r5, #0
+    str r5, [r4]
+
+    pop {r4, r5, r6, r7, lr}
+    bx lr  @ return to the caller
+
+.equ internal_timer_status_adr, 0xff202000
+.equ internal_timer_control_adr, 0xff202004
+.equ internal_timer_counter_start_low_adr, 0xff202008
+.equ internal_timer_counter_start_high_adr, 0xff20200c
+.equ internal_timer_counter_snapshot_low_adr, 0xff202010
+.equ internal_timer_counter_snapshot_high_adr, 0xff202014
+.equ internal_timer_control_mode_non_con, 0b0100
+.equ internal_timer_control_mode_con, 0b0110
+.equ internal_timer_control_mode_clear, 0b0000
+@ --------------------------------------------
+@ Function: func_timer
+@
+@ Description:
+@   This function accepts time intervals and set up timer
+@   with the specific time intervals
+@
+@ Inputs:
+@   R0 - Input time intervals (100M-Hz)
+@
+@ Outputs:
+@   none
+@
+@ Note:
+@   This subroutine will return to it caller when it finished counting
+@
+@--------------------------------------------
+func_timer:
+    push {r4, r5, r6, r7, lr}
+
+    @ initialize the timer count
+    push {r0} @ save the r0 value
+    ldr r4, =internal_timer_counter_start_low_adr
+    str r0, [r4]
+    lsr r0, #16 @ get the higher 16-bit
+    ldr r4, =internal_timer_counter_start_high_adr
+    str r0, [r4]
+    pop {r0} @ restore the value of the r0 register
+
+    @ initialize the control bit for the timer
+    push {r2}
+    ldr r4, =internal_timer_control_adr
+    mov r2, #internal_timer_control_mode_non_con
+    str r2, [r4]
+    pop {r2}
+
+wait_loop:
+    @ using current count to control loop
+    ldr r4, =internal_timer_counter_snapshot_low_adr
+    str r1, [r4] @ write junk to register
+    ldr r2, [r4]
+    ldr r4, =internal_timer_counter_snapshot_high_adr
+    ldr r3, [r4]
+    add r2, r3, lsl #16
+
+    cmp r2, #0
+    bne wait_loop
+
+    @ clear the control bit
+    ldr r4, =internal_timer_control_adr
+    mov r2, #internal_timer_control_mode_clear
+    str r2, [r4]
+
+    pop {r4, r5, r6, r7, lr}
+    bx lr  @ return to the caller
 
 @ --------------------------------------------
 @ Test: Test the result of func_number_display
