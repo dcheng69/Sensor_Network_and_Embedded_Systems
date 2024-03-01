@@ -6,9 +6,43 @@ timer_5s:   .word   500000000
 /* 50*4 to store 50 f(2) to f(51) results for dynamic programming*/
 fibonacci_array: .zero 200 @ used by fibonacci
 
+/* macros for control loop*/
+.equ loop_control_var, 10
+.equ timer_control_var, timer_1s
+.equ display_format_control_var, 0x1 @ 0x1 decimal format, 0x0 hex format
+
 .text
 .global _start
 _start:
+    /* Code for the main control logic */
+    mov r2, #0
+endless_loop:
+    cmp r2, #loop_control_var
+    moveq r2, #0
+
+    @ light up the led light
+    ldr r4, =led_control_adr
+    mov r5, r2
+    str r5, [r4]
+
+    @ calculate the fibonacci number
+    mov r0, r2
+    push {r2}
+    bl func_fibonacci_dynamic_programming
+
+    @ display the result in decimal format
+    mov r1, #display_format_control_var
+    bl func_number_display
+
+    @ set up the timer
+    ldr r1, =timer_control_var
+    ldr r0, [r1]
+    bl func_timer
+
+    pop {r2}
+
+    add r2, #1
+    b endless_loop
 
 
     /* Test case for the func_convert_seven_segment_byte */
