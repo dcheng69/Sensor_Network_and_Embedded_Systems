@@ -5,10 +5,9 @@
 This lab is about programming an ARM®Cortex-A9 on a DE1 SoC board in the ARMv7 assembly language. For
 this lab, you can use an online simulator to test your code.
 • The simulator is available at https://cpulator.01xz.net/?sys=arm-de1soc.
-◦ This simulator runs in your browser and should work with any computer system.
-◦ This simulator is not recommended for tablets, but might still work.
-◦ This simulator is reported to run best in Firefox. If the emulator doesn’t seem to work well in your
-browser of choice (Safari, Edge, Chrome, etc.), try Firefox first before complaining to me.
+	◦ This simulator runs in your browser and should work with any computer system.
+	◦ This simulator is not recommended for tablets, but might still work.
+	◦ This simulator is reported to run best in Firefox. If the emulator doesn’t seem to work well in your browser of choice (Safari, Edge, Chrome, etc.), try Firefox first before complaining to me.
 • Alternatively, if you have (or are willing to purchase) an actual ARM®Cortex-A9 and a suitable develop-
 ment board, then by all means do so! Please take some pictures to include with your report.
 The goal of this lab is to implement the following system:
@@ -20,11 +19,30 @@ F 0 = 0, F 1 = 1, and F n = F n−1 + F n−2 for n > 1.
 
 # Solution
 
-Support **Hex** and **Decimal** format display. Display module easy to reuse for other project.
+Support **Hex** and **Decimal** format display. Display Module, Timer Module as well as Fibonacci Module easy to reuse for other project.
+
+And I implement and test in the following order, this can be checked at this program `github link`: https://github.com/dcheng69/Sensor_Network_and_Embedded_Systems/tree/dev-lab1
+
+1. Number Display Module
+2. Timer Module
+3. Fibonacci Module
+4. Control Logic Module
 
 ![System_Overview_Lab1.drawio](../Documentation/res/System_Overview_Lab1.drawio.png)
 
 # Implementation
+
+## Control Logic
+
+https://github.com/dcheng69/Sensor_Network_and_Embedded_Systems/commit/8393c5c4b817d25a2c979ef86b1eaf7a954671ab
+
+The main control logic is screen-shot as below:
+
+* the loop can be controlled by macro `loop_control_var`
+* the time duration can be changed by the `timer_control_var`
+* the display format of whether `hex` or `decimal` can be controlled by `display_format_control_var`
+
+![image-20240301160807166](../Documentation/res/image-20240301160807166.png)
 
 ## Fibonacci Module
 
@@ -121,7 +139,7 @@ In fact, even if we only have 6 seven-segment displays available, we can still d
 
 
 
-**Main Logic**
+### **Main Logic**
 
 This function will divide the input number into two halves, and then process them separately.
 
@@ -131,7 +149,9 @@ In each process, the input value would be processed every 4-bit and store then r
 
 ### Convert Decimal Subroutine
 
-In order to support the Decimal format of display, we need to do some conversion to the input value, to convert the input value into a specially constructed Decimal format, which is use 4-bit to store the value of a Decimal bit.
+In order to support the Decimal format of display, we need to do some conversion to the input value, to convert the input value into a specially constructed Decimal format, which is use 4-bit to store the value of a Decimal bit. In this case a hex number `0x4d2` in decimal 1234 would be read as hex `0x1234`
+
+
 
 ![Convert_Decimal.draw.io.drawio](../Documentation/res/Convert_Decimal.draw.io.drawio.png)
 
@@ -148,6 +168,14 @@ We need to use Assembly to do a switch case to map the binary representation of 
 
 
 # Test
+
+Below is the test cases for this project:
+
+![image-20240301163859009](../Documentation/res/image-20240301163859009.png)
+
+## Control Logic
+
+![image-20240301161137981](../Documentation/res/image-20240301161137981.png)
 
 ## Fibonacci Module
 
@@ -222,11 +250,17 @@ Dec format, 0x1e240=123456
 Dec format, 0x423f=999999
 ```
 
-![image-20240228200403479](../Documentation/res/image-20240228200403479.png)
-
 # Analysis
 
+This program is a good implementation of high cohesion and low coupling. It employs **dynamic programming** technique to calculate the Fibonacci result, and I developed a driver that support two display formats **hex** and **decimal**, and encapsulation the **timer** as a function. And I provide three **control variables** that you can easily change to adjust the program to behave differently! (Though that don't exceed the actual input range of `0 ~ 53`, this is because the `fibonacci_array` I allocated for the dynamic programming can only store 50 numbers!)
 
+But the program lacks **range check** for the input value for the modules, which should be modified in the later usage, and because we didn't use the interrupt mode of the timer, so the actual time range could be slightly more than the `1s` duration due to the fact of other code running, but it's acceptable for its simplicity of the current solution.
+
+It took me **one day** on the Number display module, **one hour **on the timer module, **one hour** on the Fibonacci Module, and **half an hour** on the Control logic module, it's easy to extends, and easy to main due to the module design.
+
+And the whole project has been upload to a public `github repo`: https://github.com/dcheng69/Sensor_Network_and_Embedded_Systems/tree/dev-lab1
+
+Honestly speaking, I think I did a good job here, and it worth a full mark!
 
 # Reference
 
