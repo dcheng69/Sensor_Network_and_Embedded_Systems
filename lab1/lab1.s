@@ -3,6 +3,9 @@ timer_1s:   .word   100000000 @ 0x5F5E100
 timer_2s:   .word   200000000
 timer_5s:   .word   500000000
 
+/* 50*4 to store 50 f(2) to f(51) results for dynamic programming*/
+fibonacci_array: .zero 200 @ used by fibonacci
+
 .text
 .global _start
 _start:
@@ -35,6 +38,159 @@ _start:
     @bl test_func_timer_1
     @bl test_func_timer_2
     @bl test_func_timer_3
+    bl test_func_fibonacci_dynamic_programming_1
+    bl test_func_fibonacci_dynamic_programming_2
+    bl test_func_fibonacci_dynamic_programming_3
+    bl test_func_fibonacci_dynamic_programming_4
+    bl test_func_fibonacci_dynamic_programming_5
+    bl test_func_fibonacci_dynamic_programming_6
+    bl test_func_fibonacci_dynamic_programming_7
+
+@ --------------------------------------------
+@ Test: Test the result of func_fibonacci_dynamic_programming
+@
+@ Description:
+@   test_1: 0 @ ret = 0
+@   test_2: 1 @ ret = 1
+@   test_3: 2 @ ret = 1
+@   test_4: 3 @ ret = 2
+@   test_5: 4 @ ret = 3
+@   test_6: 10 @ ret = 55
+@
+@ --------------------------------------------
+test_func_fibonacci_dynamic_programming_1:
+    push {r4, r5, r6, r7, lr}
+    mov r0, #0
+    bl func_fibonacci_dynamic_programming
+
+    pop {r4, r5, r6, r7, lr}
+    bx lr  @ return to the caller
+
+test_func_fibonacci_dynamic_programming_2:
+    push {r4, r5, r6, r7, lr}
+    mov r0, #1
+    bl func_fibonacci_dynamic_programming
+
+    pop {r4, r5, r6, r7, lr}
+    bx lr  @ return to the caller
+
+test_func_fibonacci_dynamic_programming_3:
+    push {r4, r5, r6, r7, lr}
+    mov r0, #2
+    bl func_fibonacci_dynamic_programming
+
+    pop {r4, r5, r6, r7, lr}
+    bx lr  @ return to the caller
+
+test_func_fibonacci_dynamic_programming_4:
+    push {r4, r5, r6, r7, lr}
+    mov r0, #3
+    bl func_fibonacci_dynamic_programming
+
+    pop {r4, r5, r6, r7, lr}
+    bx lr  @ return to the caller
+
+test_func_fibonacci_dynamic_programming_5:
+    push {r4, r5, r6, r7, lr}
+    mov r0, #4
+    bl func_fibonacci_dynamic_programming
+
+    pop {r4, r5, r6, r7, lr}
+    bx lr  @ return to the caller
+
+test_func_fibonacci_dynamic_programming_6:
+    push {r4, r5, r6, r7, lr}
+    mov r0, #10
+    bl func_fibonacci_dynamic_programming
+
+    pop {r4, r5, r6, r7, lr}
+    bx lr  @ return to the caller
+
+test_func_fibonacci_dynamic_programming_7:
+    push {r4, r5, r6, r7, lr}
+    mov r0, #20
+    bl func_fibonacci_dynamic_programming
+
+    pop {r4, r5, r6, r7, lr}
+    bx lr  @ return to the caller
+
+@ --------------------------------------------
+@ Function: func_fibonacci_dynamic_programming
+@
+@ Description:
+@   This function accepts a n number to calculate the 
+@
+@ Inputs:
+@   R0 - Input number for fibonacci algorithm
+@
+@ Outputs:
+@   R0 - Output Result
+@
+@ Note:
+@   This subroutine use dynamic programming, which will need extra storage
+@
+@--------------------------------------------
+func_fibonacci_dynamic_programming:
+    push {r4, r5, r6, r7, lr}
+
+    cmp r0, #0 @ if the input if 0
+    beq label_input_0
+    cmp r0, #1 @ if the input if 0
+    beq label_input_1
+
+    @ Get 4 bytes at index [n-2] of the fibonacci_array
+    ldr r4, =fibonacci_array
+    mov r1, r0
+    sub r1, #2 @ [n-2]
+    lsl r1, #2 @ multiply by 4 to calculate bytes offset
+    add r4, r1
+    ldr r2, [r4]
+
+    cmp r2, #0
+    bne label_saved_value @ cached value
+
+    @ new value, then calculate n-2 recursively
+    push {r0} @ save the original input first
+    sub r0, #2 @ n-2
+    bl func_fibonacci_dynamic_programming
+    @ resotre from the recursive function
+    mov r7, r0 @ save the return value first
+    pop {r0} @ restore the original input
+
+    @ new value, then calculate n-1 recursively
+    push {r0} @ save the original input first
+    sub r0, #1 @ n-2
+    bl func_fibonacci_dynamic_programming
+    @ resotre from the recursive function
+    mov r6, r0 @ save the return value first
+    pop {r0} @ restore the original input
+
+    @ Get 4 bytes at index [n-2] of the fibonacci_array
+    ldr r4, =fibonacci_array
+    mov r1, r0
+    sub r1, #2 @ [n-2]
+    lsl r1, #2 @ multiply by 4 to calculate bytes offset
+    add r4, r1
+
+    add r0, r6, r7
+    str r0, [r4]
+    pop {r4, r5, r6, r7, lr}
+    bx lr @ return to the caller
+
+label_input_0:
+    mov r0, #0
+    pop {r4, r5, r6, r7, lr}
+    bx lr @ return to the caller
+
+label_input_1:
+    mov r0, #1
+    pop {r4, r5, r6, r7, lr}
+    bx lr @ return to the caller
+
+label_saved_value:
+    mov r0, r2 @ save the value to the r0 fo return
+    pop {r4, r5, r6, r7, lr}
+    bx lr @ return to the caller
 
 .equ led_control_adr, 0xff200000
 @ --------------------------------------------
