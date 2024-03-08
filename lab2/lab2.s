@@ -24,6 +24,11 @@ _start:
     bl test_func_number_display_8
     bl test_func_number_display_9
     bl test_func_number_display_10
+    bl test_func_number_display_11
+    bl test_func_number_display_12
+    bl test_func_number_display_13
+    bl test_func_number_display_14
+    bl test_func_number_display_15
 
 @ --------------------------------------------
 @ Test: Test the result of func_number_display
@@ -38,7 +43,12 @@ _start:
 @   test_7: 0x162E=5678
 @   test_8: 0x0=000000
 @   test_9: 0x1e240=123456
-@   test_10: 0x423f=999999
+@   test_10: 0xf423f=999999
+@   test_11: 0x9=9
+@   test_12: 0xa=10
+@   test_13: 0x63=99
+@   test_14: 0x64=100
+@   test_14: 0x3e7=999
 @
 @ --------------------------------------------
 test_func_number_display_1:
@@ -124,13 +134,57 @@ test_func_number_display_9:
 
 test_func_number_display_10:
     push {lr}
-    ldr r0, =0x423f
+    ldr r0, =0xf423f
     ldr r1, =0x1
     bl func_number_display
 
     pop {lr}
     bx lr  @ return to the caller
 
+test_func_number_display_11:
+    push {lr}
+    ldr r0, =0x9
+    ldr r1, =0x1
+    bl func_number_display
+
+    pop {lr}
+    bx lr  @ return to the caller
+
+test_func_number_display_12:
+    push {lr}
+    ldr r0, =0xa
+    ldr r1, =0x1
+    bl func_number_display
+
+    pop {lr}
+    bx lr  @ return to the caller
+
+test_func_number_display_13:
+    push {lr}
+    ldr r0, =0x63
+    ldr r1, =0x1
+    bl func_number_display
+
+    pop {lr}
+    bx lr  @ return to the caller
+
+test_func_number_display_14:
+    push {lr}
+    ldr r0, =0x64
+    ldr r1, =0x1
+    bl func_number_display
+
+    pop {lr}
+    bx lr  @ return to the caller
+
+test_func_number_display_15:
+    push {lr}
+    ldr r0, =0x3e7
+    ldr r1, =0x1
+    bl func_number_display
+
+    pop {lr}
+    bx lr  @ return to the caller
 
 /* Address macro for 7-segment display registers word write only */
 .equ L_display, 0xff200020 @Lower 4 digits address
@@ -159,6 +213,8 @@ test_func_number_display_10:
 @--------------------------------------------
 func_number_display:
     push {r4, r5, r6, r7, lr}
+    cmp r0, #0 @ if the input is 0?
+    beq label_display_one_zero
     and r2, r1, #mask_control_bit
     cmp r2, #mask_control_bit
     /* we only has 6 7-segment displays */
@@ -175,73 +231,97 @@ label_hex_display:
     and r1, r0, r6
 
     push {r0}
+    mov r6, #0 @ bit to be left shifted
+    mov r5, #0 @ result
 
+label_convert_low_digits:
     push {r1}
-    and r0, r1, #mask_lower_4bits
-    bl  func_convert_seven_segment_byte
-    mov r5, r1
-    ror r5, #8 @rotate right 8 bits
-    pop {r1}
-    lsr r1, #4
+    cmp r1, #0 @ whether the remaining is '0'
+    beq label_exit_low_digits
 
-    push {r1}
-    and r0, r1, #mask_lower_4bits
+    and r1, r1, #mask_lower_4bits
+    mov r0, r1
     bl  func_convert_seven_segment_byte
+
+    mov r2, r6
+label_left_shift_low:
+    cmp r2, #0
+    beq label_left_shift_low_exit
+    lsl r1, #8 @ shift left 8 bit a time, controled by value in r0
+    subs r2, #1
+    b label_left_shift_low
+
+label_left_shift_low_exit:
     add r5, r1
-    ror r5, #8 @rotate right 8 bits
+
     pop {r1}
     lsr r1, #4
+    add r6, #1
+    b label_convert_low_digits
 
-    push {r1}
-    and r0, r1, #mask_lower_4bits
-    bl  func_convert_seven_segment_byte
-    add r5, r1
-    ror r5, #8 @rotate right 8 bits
+label_exit_low_digits:
     pop {r1}
-    lsr r1, #4
-
-    push {r1}
-    and r0, r1, #mask_lower_4bits
-    bl  func_convert_seven_segment_byte
-    add r5, r1
-    ror r5, #8 @rotate right 8 bits
-    pop {r1}
-    lsr r1, #4
-
     pop {r0}
+    push {r5} @ save the r5 value to stack
 
     /* calculate the higher 2 digits */
     and r1, r0, #mask_higher_8bits @ get the lower 16-bit
     lsr r1, #16
 
+    mov r6, #0 @ bit to be left shifted
+    mov r5, #0 @ result
+label_convert_high_digits:
     push {r1}
-    and r0, r1, #mask_lower_4bits
+    cmp r1, #0 @ whether the remaining is '0'
+    beq label_exit_high_digits
+
+    and r1, r1, #mask_lower_4bits
+    mov r0, r1
     bl  func_convert_seven_segment_byte
-    mov r6, r1
-    ror r6, #8 @rotate right 8 bits
+
+    mov r2, r6
+label_left_shift_high:
+    cmp r2, #0
+    beq label_left_shift_high_exit
+    lsl r1, #8 @ shift left 8 bit a time, controled by value in r0
+    subs r2, #1
+    b label_left_shift_high
+
+label_left_shift_high_exit:
+    add r5, r1
+
     pop {r1}
     lsr r1, #4
+    add r6, #1
+    b label_convert_high_digits
 
-    push {r1}
-    and r0, r1, #mask_lower_4bits
-    bl  func_convert_seven_segment_byte
-    add r6, r1
-    ror r6, #8 @rotate right 8 bits
+label_exit_high_digits:
     pop {r1}
-    lsr r1, #4
-
-    ror r6, #8 @rotate right 8 bits
-    ror r6, #8 @rotate right 8 bits
 
     /* display */
-    ldr r4, =L_display
-    str r5, [r4]
     ldr r4, =H_display
-    str r6, [r4]
+    str r5, [r4]
+    ldr r4, =L_display
+    pop {r5}
+    str r5, [r4]
 
     b label_exit_display
 
 label_exit_display:
+    pop {r4, r5, r6, r7, lr}
+    bx lr  @ return to the caller
+
+label_display_one_zero:
+    /* display */
+    mov r5, #0
+    ldr r4, =H_display
+    str r5, [r4]
+
+    mov r0, #0
+    bl  func_convert_seven_segment_byte
+    ldr r4, =L_display
+    str r1, [r4]
+
     pop {r4, r5, r6, r7, lr}
     bx lr  @ return to the caller
 
