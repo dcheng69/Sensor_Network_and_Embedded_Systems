@@ -66,7 +66,7 @@ To solve this problem, I will need to change the control logic. Instead of using
 
 And the flow chart after modification is listed below: the red components is the modification to the original function design
 
-![Number_Display.draw.io-Page-2.drawio](/home/clay/Share/ECE9047 Sensor Networks & Embedded Systems/Assignment/Sensor_Network_and_Embedded_Systems/Documentation/res/Number_Display.draw.io-Page-2.drawio.png)
+![Number_Display.draw.io-Page-2.drawio](../Documentation/res/Number_Display.draw.io-Page-2.drawio.png)
 
 ### Test
 
