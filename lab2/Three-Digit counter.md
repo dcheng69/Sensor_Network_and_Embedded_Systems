@@ -96,3 +96,30 @@ Add `test11` to `test_14` specially for the functionality of counting from `0` t
 @ --------------------------------------------
 ```
 
+## FPGA_Internal_Timer_ISR
+
+### Design
+
+https://github.com/dcheng69/Sensor_Network_and_Embedded_Systems/commit/0db8e0b0be25d51c3d2d82c7d3d5760f89bb6364
+
+The `ISR` of the `FPGA_Internal_Timer_ISR` can be tested without setup the interrupts.
+
+Then flow chart of this `ISR` is shown below, it will be controlled by `counter_direction` and `counter_step_val` `counter_val` stored in memory. Which can be further integrated with the switch interrupt in the future.
+
+![FPGA_Internal_Timer_ISR.draw.io.drawio](../Documentation/res/FPGA_Internal_Timer_ISR.draw.io.drawio.png)
+
+### Test
+
+```asm
+@ --------------------------------------------
+@ Test: Test the ISR of fpga_internal_Timer
+@
+@ Description:
+@   test_1: counting from 998 up to test wrap around with step 1
+@   test_2: counting from 1 down to test wrap around with step 1
+@   test_3: counting from 998 up to test wrap around with step 3
+@   test_4: counting from 1 down to test wrap around with step 3
+@
+@ --------------------------------------------
+```
+
