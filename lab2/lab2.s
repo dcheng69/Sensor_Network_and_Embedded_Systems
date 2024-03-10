@@ -1,3 +1,10 @@
+.data
+counter_val:        .word 0
+counter_direction:   .word 0 @ 0 for couting up, 1 for counting down
+counter_step_val:   .word 1 @ step value for couter to inc or dec after interval
+
+.equ counter_threshold_inst_val, 999 @ counter threshold for counting
+
 .text
 .global _start
 _start:
@@ -14,21 +21,236 @@ _start:
     @bl test_func_conver_decimal_4
     @bl test_func_conver_decimal_5
     /* Test case for the func_number_display */
-    bl test_func_number_display_1
-    bl test_func_number_display_2
-    bl test_func_number_display_3
-    bl test_func_number_display_4
-    bl test_func_number_display_5
-    bl test_func_number_display_6
-    bl test_func_number_display_7
-    bl test_func_number_display_8
-    bl test_func_number_display_9
-    bl test_func_number_display_10
-    bl test_func_number_display_11
-    bl test_func_number_display_12
-    bl test_func_number_display_13
-    bl test_func_number_display_14
-    bl test_func_number_display_15
+    @bl test_func_number_display_1
+    @bl test_func_number_display_2
+    @bl test_func_number_display_3
+    @bl test_func_number_display_4
+    @bl test_func_number_display_5
+    @bl test_func_number_display_6
+    @bl test_func_number_display_7
+    @bl test_func_number_display_8
+    @bl test_func_number_display_9
+    @bl test_func_number_display_10
+    @bl test_func_number_display_11
+    @bl test_func_number_display_12
+    @bl test_func_number_display_13
+    @bl test_func_number_display_14
+    @bl test_func_number_display_15
+    /* Test case for FPGA_Internal_Timer_ISR */
+    bl test_FPGA_Internal_Timer_1
+    bl test_FPGA_Internal_Timer_2
+    bl test_FPGA_Internal_Timer_3
+    bl test_FPGA_Internal_Timer_4
+
+@ --------------------------------------------
+@ Test: Test the ISR of fpga_internal_Timer
+@
+@ Description:
+@   test_1: counting from 998 up to test wrap around with step 1
+@   test_2: counting from 1 down to test wrap around with step 1
+@   test_3: counting from 998 up to test wrap around with step 3
+@   test_4: counting from 1 down to test wrap around with step 3
+@
+@ --------------------------------------------
+test_FPGA_Internal_Timer_1:
+    push {r4-r7, lr}
+
+    /* set up the step val */
+    ldr r7, =counter_step_val
+    ldr r4, [r7]
+    ldr r4, =1 @ step val 1
+    str r4, [r7]
+
+    /* set up the direction */
+    ldr r7, =counter_direction
+    ldr r4, [r7]
+    ldr r4, =0 @ 0 for counting up
+    str r4, [r7]
+
+    /* set up the start point of counting */
+    ldr r7, =counter_val
+    ldr r4, [r7]
+    ldr r4, =998
+    str r4, [r7]
+
+    /* manually trigger ISR for 3 times*/
+    bl FPGA_Internal_Timer_ISR @ 999
+    bl FPGA_Internal_Timer_ISR @ 0
+    bl FPGA_Internal_Timer_ISR @ 1
+
+    pop {r4-r7, lr}
+    bx lr
+
+test_FPGA_Internal_Timer_2:
+    push {r4-r7, lr}
+
+    /* set up the step val */
+    ldr r7, =counter_step_val
+    ldr r4, [r7]
+    ldr r4, =1 @ step val 1
+    str r4, [r7]
+
+    /* set up the direction */
+    ldr r7, =counter_direction
+    ldr r4, [r7]
+    ldr r4, =1 @ 1 for counting down
+    str r4, [r7]
+
+    /* set up the start point of counting */
+    ldr r7, =counter_val
+    ldr r4, [r7]
+    ldr r4, =1
+    str r4, [r7]
+
+    /* manually trigger ISR for 3 times*/
+    bl FPGA_Internal_Timer_ISR @ 0
+    bl FPGA_Internal_Timer_ISR @ 999
+    bl FPGA_Internal_Timer_ISR @ 998
+
+    pop {r4-r7, lr}
+    bx lr
+
+test_FPGA_Internal_Timer_3:
+    push {r4-r7, lr}
+
+    /* set up the step val */
+    ldr r7, =counter_step_val
+    ldr r4, [r7]
+    ldr r4, =3 @ step val 3
+    str r4, [r7]
+
+    /* set up the direction */
+    ldr r7, =counter_direction
+    ldr r4, [r7]
+    ldr r4, =0 @ 0 for counting up
+    str r4, [r7]
+
+    /* set up the start point of counting */
+    ldr r7, =counter_val
+    ldr r4, [r7]
+    ldr r4, =998
+    str r4, [r7]
+
+    /* manually trigger ISR for 3 times*/
+    bl FPGA_Internal_Timer_ISR @ 1
+    bl FPGA_Internal_Timer_ISR @ 4
+    bl FPGA_Internal_Timer_ISR @ 7
+
+    pop {r4-r7, lr}
+    bx lr
+
+test_FPGA_Internal_Timer_4:
+    push {r4-r7, lr}
+
+    /* set up the step val */
+    ldr r7, =counter_step_val
+    ldr r4, [r7]
+    ldr r4, =3 @ step val 3
+    str r4, [r7]
+
+    /* set up the direction */
+    ldr r7, =counter_direction
+    ldr r4, [r7]
+    ldr r4, =1 @ 1 for counting down
+    str r4, [r7]
+
+    /* set up the start point of counting */
+    ldr r7, =counter_val
+    ldr r4, [r7]
+    ldr r4, =1
+    str r4, [r7]
+
+    /* manually trigger ISR for 3 times*/
+    bl FPGA_Internal_Timer_ISR @ 998
+    bl FPGA_Internal_Timer_ISR @ 995
+    bl FPGA_Internal_Timer_ISR @ 992
+
+    pop {r4-r7, lr}
+    bx lr
+
+.equ internal_timer_status_adr, 0xff202000
+.equ counter_couting_up, 0x0
+.equ counter_couting_down, 0x1
+@ --------------------------------------------
+@ Function: FPGA_Internal_Timer_ISR
+@
+@ Inputs:
+@   memory: counter_val
+@   memory: counter_direction
+@   memory: counter_step_val
+@   memory: counter_threshold_inst_val
+@
+@ Description:
+@   ISR for FPGA_Internal_Timer, increase the number in memory
+@   and then display
+@
+@ Note:
+@   To test this ISR display a number on the Hex Display
+@
+@ --------------------------------------------
+.global FPGA_Internal_Timer_ISR
+FPGA_Internal_Timer_ISR:
+    push {r4-r7, lr}
+    @ldr r1, =internal_timer_status_adr
+    @str r0, [r1] @ writing any value to status register to clear interrupt status
+
+    /* read counter_val to r4 */
+    ldr r7, =counter_val
+    ldr r4, [r7]
+
+    /* read counter_step_val to r5 */
+    ldr r7, =counter_step_val
+    ldr r5, [r7]
+
+    /* read counter_direction to r6 */
+    ldr r7, =counter_direction
+    ldr r6, [r7]
+
+    /* judging couting up or down */
+    cmp r6, #counter_couting_up
+    bne label_counting_down
+
+label_counting_up:
+    add r4, r5
+    ldr r7, =counter_threshold_inst_val
+    cmp r4, r7
+    bgt label_overflow_reset
+    b label_write_back_to_memory
+
+label_counting_down:
+    subs r4, r5
+    bmi label_underflow_reset
+    b label_write_back_to_memory
+
+label_underflow_reset:
+    ldr r7, =counter_step_val
+    ldr r4, [r7]
+    ldr r7, =counter_val
+    ldr r6, [r7] @ load the val before sub
+    sub r4, r4, r6 @ save the result to r4
+    sub r4, #1 @ counting from '0'
+    ldr r6, =counter_threshold_inst_val
+    sub r4, r6, r4
+    b label_write_back_to_memory
+
+label_overflow_reset:
+    ldr r6, =counter_threshold_inst_val
+    subs r4, r4, r6
+    sub r4, #1 @ counting from '0'
+    b label_write_back_to_memory
+
+label_write_back_to_memory:
+    ldr r7, =counter_val
+    str r4, [r7]
+
+label_write_to_display:
+    mov r0, r4
+    ldr r1, =1 @ display in decimal format
+    bl func_number_display
+
+label_exit_fpga_timer_isr:
+    pop {r4-r7, lr}
+    bx lr
 
 @ --------------------------------------------
 @ Test: Test the result of func_number_display
