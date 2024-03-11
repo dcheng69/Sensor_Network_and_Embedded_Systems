@@ -1,13 +1,65 @@
 .data
+timer_1s:   .word   100000000 @ 0x5F5E100
+timer_2s:   .word   200000000
+timer_5s:   .word   500000000
+/* control variables for this program */
 counter_val:        .word 0
 counter_direction:   .word 0 @ 0 for couting up, 1 for counting down
 counter_step_val:   .word 1 @ step value for couter to inc or dec after interval
-
+.equ timer_control_var, timer_1s
 .equ counter_threshold_inst_val, 999 @ counter threshold for counting
+
+@ --------------------------------------------
+@ Intialize the exception vector table
+@ --------------------------------------------
+.section .vectors, "ax"
+    B   _start                  @ reset vector
+    B   SERVICE_UND             @ undefined instruction vector
+    B   SERVICE_SVC             @ software interrupt vector
+    B   SERVICE_ABT_INST        @ aborted prefetch vector
+    B   SERVICE_ABT_DATA        @ aborted data vector
+    .word 0                     @ unused vector
+    B   SERVICE_IRQ             @ IRQ interrupt vector
+    B   SERVICE_FIQ             @ FIO interrupt vector
+
+
+.equ IRQ_MODE_CPU_MASK, 0b11010010 @ CPU IRQ mode mask
+.equ SVC_MODE_CPU_MASK, 0b11010011 @ CPU SVC mode mask
+.equ IRQ_Stack_Start_ADR, 0xFFFFFFFF
+.equ SVC_Stack_Start_ADR, 0x3FFFFFFF
+.equ SVC_MODE_IRQ_E_CPU_MASK , 0b01010011
 
 .text
 .global _start
 _start:
+    /* Set up stack pointers for IRQ and SVC processor modes */
+    mov r1, #IRQ_MODE_CPU_MASK
+    msr CPSR_c, r1 @ change to IRQ mode
+    ldr sp, =IRQ_Stack_Start_ADR - 3 @ set IRQ stack to A9 onchip memory
+
+    /* Change to SVC supervisor mode with interrupts disabled*/
+    mov r1, #SVC_MODE_CPU_MASK
+    msr CPSR, r1
+    ldr sp, =SVC_Stack_Start_ADR - 3 @ set SVC stack to the top of DDR3 memory
+
+    bl Config_GIC
+    bl Config_FPGA_Internal_Timer_Interrupt
+
+    /* enable IRQ interrupts in the processor */
+    mov r0, #SVC_MODE_IRQ_E_CPU_MASK
+    msr CPSR_c, r0
+
+    /* Display the Initial Counter Number */
+    ldr r1, =counter_val
+    ldr r0, [r1]
+    ldr r1, =1 @ display in decimal format
+    bl func_number_display
+
+IDLE:
+    b IDLE @ main program idles
+    /* end of _start */
+
+    /* Set up stack pointers for IRQ and SVC processor modes */
     /* Test case for the func_convert_seven_segment_byte */
     @bl test_func_convert_seven_segment_byte_1
     @bl test_func_convert_seven_segment_byte_2
@@ -37,10 +89,186 @@ _start:
     @bl test_func_number_display_14
     @bl test_func_number_display_15
     /* Test case for FPGA_Internal_Timer_ISR */
-    bl test_FPGA_Internal_Timer_1
-    bl test_FPGA_Internal_Timer_2
-    bl test_FPGA_Internal_Timer_3
-    bl test_FPGA_Internal_Timer_4
+    @bl test_FPGA_Internal_Timer_1
+    @bl test_FPGA_Internal_Timer_2
+    @bl test_FPGA_Internal_Timer_3
+    @bl test_FPGA_Internal_Timer_4
+
+
+.equ ICCIAR_ADR, 0xfffec10c @ address for Interrupt Acknowledge Register (ICCIAR)
+.equ ICCEOIR_ADR, 0xfffec110 @ address for End of Interrupt Register (ICCEOIR)
+.equ FPGA_INTERNAL_TIMER_IRQ_ID, 72 @ unique interrupt id for fpga internal timer
+@ --------------------------------------------
+@ Define the IRQ exception handlers here
+@ --------------------------------------------
+SERVICE_UND:
+    B SERVICE_UND               @ pending until someone fix it
+SERVICE_SVC:
+    B SERVICE_SVC               @ we do not handle svc in this program
+SERVICE_ABT_INST:
+    B SERVICE_ABT_INST          @ we do not handle abort in this program
+SERVICE_ABT_DATA:
+    B SERVICE_ABT_DATA          @ we do not handle abort in this program
+SERVICE_IRQ:
+    push {r0-r7, lr}
+
+    /* Read the ICCIAR from the CPU interface*/
+    ldr r4, =ICCIAR_ADR
+    ldr r5, [r4]
+
+FPGA_Internal_Timer_CHECK:
+    cmp r5, #FPGA_INTERNAL_TIMER_IRQ_ID
+Unexpected:
+    bne Unexpected @ if not Timer, then pending
+    bl FPGA_Internal_Timer_ISR
+
+Exit_IRQ:
+    /* write to the end of ICCEOIR */
+    ldr r4, =ICCEOIR_ADR
+    str r5, [r4] @ write interrupt ID back to clear the state
+
+    pop {r0-r7, lr}
+    subs pc, lr, #4
+
+SERVICE_FIQ:
+    B SERVICE_FIQ               @ we do not handle FIQ in this program
+
+.equ ICCPMR_ADR, 0xfffec104 @ address for Priority Mask Register (ICCPMR)
+.equ Priority_Levels, 0xffff @ interrupts for all priorities levels
+.equ ICCICR_ADR, 0xfffec100 @ address for CPU Interface Control Register (ICCICR)
+.equ Enable_ICCICR_Bit, 0x1 @ Bit for Enable ICCICR
+.equ ICDDCR_ADR, 0xfffed000 @ ICDDCR The Distributor Control Register
+.equ Enable_ICDDCR_Bit, 0x1 @ Bit for Enable ICDDCR
+@ --------------------------------------------
+@ Function: Config_GIC
+@
+@ Description:
+@   Config the Generic Interrupt Controller (GIC)
+@
+@ Note:
+@   To configure the FPGA Inter Timer Interrupt ID 72
+@   1. set the target to cpu0 in the ICDIPTRn register
+@   2. enable the interrupt in the ICDISERn register
+@--------------------------------------------
+Config_GIC:
+    push {lr}
+
+    /* Config interrupt (int_ID (r0), CPU_Target (r1)) */
+    mov r0, #FPGA_INTERNAL_TIMER_IRQ_ID
+    mov r1, #1 @ bit-mask, bit 0 targets cpu0
+    bl Config_Interrupt
+
+    /* configure the GIC CPU Interface (ICCICR) */
+    /* set interrupt priority mask register (ICCPMR) */
+    ldr r0, =ICCPMR_ADR
+    ldr r1, =Priority_Levels
+    str r1, [r0]
+    /* set enable bit in the CPU Interface Control Register (ICCICR) */
+    ldr r0, =ICCICR_ADR
+    ldr r1, =Enable_ICCICR_Bit
+    str r1, [r0]
+
+    /* set the enable bit in the ICDDCR */
+    ldr r0, =ICDDCR_ADR
+    ldr r1, =Enable_ICDDCR_Bit
+    str r1, [r0]
+
+    pop {pc}
+
+.equ ICDISERn_ADR, 0xfffed100 @ ICDISERn address
+.equ ICDIPTRn_ADR, 0xfffed800 @ ICDIPTRn address
+@ --------------------------------------------
+@ Function: Config_Interrupt
+@
+@ Description:
+@   Config the Registers in the GIC for an individual Interrupt ID
+@
+@ Inputs:
+@   R0 - Interrupt ID, N
+@   R1 - CPU Target
+@
+@ Note:
+@   To configure the FPGA Inter Timer Interrupt ID 72
+@   1. Config ICDISERn
+@   2. Config ICDIPTRn
+@   3. Config defatult values used for other registers in the GIC
+@--------------------------------------------
+Config_Interrupt:
+    push {r4-r5, lr}
+
+    /* config interrupt set-enable registers (ICDISERn) */
+    /*
+    *   reg_offset = (N/32)*4
+    *   value = 1 << (N mod 32)
+    */
+    lsr r4, r0, #3
+    bic r4, r4, #3 @ r4 = reg_offset
+    ldr r2, =ICDISERn_ADR
+    add r4, r2, r4 @ r4 = address of ICDISER
+
+    and r2, r0, #0x1f @ N mod 32
+    mov r5, #1  @ enable
+    lsl r2, r5, r2 @ r2 = value
+
+    /*
+    * set value in r2 to address in r4
+    */
+    ldr r3, [r4]
+    orr r3, r3, r2
+    str r3, [r4]
+
+    /*
+    * config Interrupt Processor Tragets Register (ICDIPTRn)
+    *   reg_offset = (N/4)*4
+    *   value = N mod 4
+    */
+    bic r4, r0, #3 @ r4 = reg_offset
+    ldr r2, =ICDIPTRn_ADR
+    add r4, r2, r4 @ r4 = word address of ICDIPTR
+    and r2, r0, #0x3 @ r2 = N mod 4
+    add r4, r2, r4 @ r4 = byte address in ICDIPTR
+
+    /*
+    * set input value in r1 to address in r4 by one byte
+    */
+    strb r1, [r4]
+
+    pop {r4-r5, pc}
+
+.equ internal_timer_control_adr, 0xff202004
+.equ internal_timer_counter_start_low_adr, 0xff202008
+.equ internal_timer_counter_start_high_adr, 0xff20200c
+.equ internal_timer_control_mode_con_it, 0b0111
+.equ internal_timer_control_mode_clear, 0b0000
+@ --------------------------------------------
+@ Function: Config_FPGA_Internal_Timer_Interrupt
+@
+@ Description:
+@   Config the FPGA_Internal_Timer Interrupt and the time interval
+@
+@ Note:
+@   1. set the time interval to be 1s
+@
+@--------------------------------------------
+Config_FPGA_Internal_Timer_Interrupt:
+    ldr r0, =timer_control_var
+    ldr r1, [r0] @ time intervals
+
+    ldr r0, =internal_timer_counter_start_low_adr
+    str r1, [r0]
+
+    lsr r1, r1, #16
+    ldr r0, =internal_timer_counter_start_high_adr
+    str r1, [r0]
+
+    /* start the internal timer enable its interrupts */
+    mov r1, #internal_timer_control_mode_con_it
+    ldr r0, =internal_timer_control_adr
+    str r1, [r0]
+
+    bx lr
+
+
 
 @ --------------------------------------------
 @ Test: Test the ISR of fpga_internal_Timer
@@ -191,8 +419,8 @@ test_FPGA_Internal_Timer_4:
 .global FPGA_Internal_Timer_ISR
 FPGA_Internal_Timer_ISR:
     push {r4-r7, lr}
-    @ldr r1, =internal_timer_status_adr
-    @str r0, [r1] @ writing any value to status register to clear interrupt status
+    ldr r1, =internal_timer_status_adr
+    str r0, [r1] @ writing any value to status register to clear interrupt status
 
     /* read counter_val to r4 */
     ldr r7, =counter_val
