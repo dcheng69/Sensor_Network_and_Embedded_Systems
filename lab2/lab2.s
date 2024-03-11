@@ -44,6 +44,7 @@ _start:
 
     bl Config_GIC
     bl Config_FPGA_Internal_Timer_Interrupt
+    bl Config_Pushbutton_Interrupt
 
     /* enable IRQ interrupts in the processor */
     mov r0, #SVC_MODE_IRQ_E_CPU_MASK
@@ -98,6 +99,7 @@ IDLE:
 .equ ICCIAR_ADR, 0xfffec10c @ address for Interrupt Acknowledge Register (ICCIAR)
 .equ ICCEOIR_ADR, 0xfffec110 @ address for End of Interrupt Register (ICCEOIR)
 .equ FPGA_INTERNAL_TIMER_IRQ_ID, 72 @ unique interrupt id for fpga internal timer
+.equ Pushbutton_IRQ_ID, 73 @ unique interrupt id for pushbutton
 @ --------------------------------------------
 @ Define the IRQ exception handlers here
 @ --------------------------------------------
@@ -118,9 +120,18 @@ SERVICE_IRQ:
 
 FPGA_Internal_Timer_CHECK:
     cmp r5, #FPGA_INTERNAL_TIMER_IRQ_ID
+    bne Pushbutton_CHECK
+    bl FPGA_Internal_Timer_ISR
+    b Exit_IRQ
+
+Pushbutton_CHECK:
+    cmp r5, #Pushbutton_IRQ_ID
+    bne Unexpected
+    bl Pushbutton_ISR
+    b Exit_IRQ
+
 Unexpected:
     bne Unexpected @ if not Timer, then pending
-    bl FPGA_Internal_Timer_ISR
 
 Exit_IRQ:
     /* write to the end of ICCEOIR */
@@ -155,6 +166,11 @@ Config_GIC:
 
     /* Config interrupt (int_ID (r0), CPU_Target (r1)) */
     mov r0, #FPGA_INTERNAL_TIMER_IRQ_ID
+    mov r1, #1 @ bit-mask, bit 0 targets cpu0
+    bl Config_Interrupt
+
+    /* Config interrupt (int_ID (r0), CPU_Target (r1)) */
+    mov r0, #Pushbutton_IRQ_ID
     mov r1, #1 @ bit-mask, bit 0 targets cpu0
     bl Config_Interrupt
 
@@ -268,7 +284,23 @@ Config_FPGA_Internal_Timer_Interrupt:
 
     bx lr
 
-
+.equ pushbutton_interrupt_register_adr, 0xFF200058
+.equ pushbutton_interrupt_mask, 0b0001
+@ --------------------------------------------
+@ Function: Config_Pushbutton_Interrupt
+@
+@ Description:
+@   Config the interrupt of Pushbutton
+@
+@ Note:
+@   1. set the first upushbutton to control the couting direction
+@
+@--------------------------------------------
+Config_Pushbutton_Interrupt:
+    ldr r0, =pushbutton_interrupt_register_adr
+    mov r1, #pushbutton_interrupt_mask
+    str r1, [r0]
+    bx lr
 
 @ --------------------------------------------
 @ Test: Test the ISR of fpga_internal_Timer
@@ -477,6 +509,41 @@ label_write_to_display:
     bl func_number_display
 
 label_exit_fpga_timer_isr:
+    pop {r4-r7, lr}
+    bx lr
+
+.equ pushbutton_edgecapture_register_adr, 0xFF20005c
+@ --------------------------------------------
+@ Function: Pushbutton_ISR
+@
+@ Inputs:
+@   memory: counter_direction
+@
+@ Description:
+@   toggle the counter_direction in-memory variable
+@
+@ --------------------------------------------
+Pushbutton_ISR:
+    push {r4-r7, lr}
+    ldr r7, =pushbutton_edgecapture_register_adr
+    ldr r4, [r7] @ read edge capture register
+    mov r5, #pushbutton_interrupt_mask
+    str r5, [r7] @ clear the interrupt
+
+Check_KEY0:
+    movs r6, #0x1
+    ands r6, r4 @ check for KEY0
+    beq End_Pushbutton_ISR @ push other button, will not respond!
+
+    ldr r7, =counter_direction
+    ldr r5, [r7] @ read in-memor variable
+    ldr r7, =pushbutton_interrupt_mask
+    eor r5, r5, r7 @ reverse the first bit of the control variable
+
+    ldr r7, =counter_direction
+    str r5, [r7] @ write control variable back to memory
+
+End_Pushbutton_ISR:
     pop {r4-r7, lr}
     bx lr
 
