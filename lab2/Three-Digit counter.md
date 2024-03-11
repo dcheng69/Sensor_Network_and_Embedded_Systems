@@ -170,6 +170,28 @@ The `Interrupt-mask` register allows interrupts to be generated when a key is pr
 
 Tested on online simulator, works well, and by **design**, **only the first push button** will trigger the switch of the counter direction!
 
+# Analysis
+
+This solution borrows the number display from the `lab1`, and made some modifications, I spent most of the time on enabling interrupt and test `ISR`, this assignment took me 3 days overall.
+
+This solution breaks the program into `FPGA_Internal_Timer_module`, `Pushbutton`, as well as `number_display` module, all with its test cases, to make sure that it is easy to break down and to reuse.
+
+The program can be modified to  change **start value, direction, step value, threshold, as well as time intervals** before compile like below:
+
+![image-20240311011953494](../Documentation/res/image-20240311011953494.png)
+
+Or during the program run-time by modify the memory variable
+
+![image-20240311011849652](../Documentation/res/image-20240311011849652.png)
+
+Finally, by design, the program only accept the first push button's signal to reverse counting, other button will not trigger reversing!
+
+![image-20240311135524512](../Documentation/res/image-20240311135524512.png)
+
+I think I did a good job in this assignment, I will give myself full grades.
+
+This is the branch of this assignment: https://github.com/dcheng69/Sensor_Network_and_Embedded_Systems/tree/dev-lab2
+
 # Reference
 
 [1] http://ecse324.ece.mcgill.ca/fall2021/_downloads/eb3bd46aeaebdd7c592e61dbc13dc1d3/Using_GIC.pdf
