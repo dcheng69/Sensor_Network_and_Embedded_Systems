@@ -158,6 +158,18 @@ This program is controlled by several control variables, you can either modify a
 
 ![image-20240311011849652](../Documentation/res/image-20240311011849652.png)
 
+## Switch Module (Using Interrupt)
+
+https://github.com/dcheng69/Sensor_Network_and_Embedded_Systems/commit/dfa0e3fc32139026e6f179c85f0c51f6bae899a9
+
+We already have a in-memory variable `couter_direction`, the `Switch_ISR` need to set up this variable.
+
+The `Interrupt-mask` register allows interrupts to be generated when a key is pressed. Each bit in the `Edgecapture` register is set to `1` by the parallel port when the corresponding key is pressed. An interrupt service routine can read this register to determine which key has been pressed. Writing any value to the `Edgecapture` register deasserts the interrupt signal being sent to the `GIC` and sets all bits of the `Edgecapure` register to zero.
+
+![image-20240311112454145](../Documentation/res/image-20240311112454145.png)
+
+Tested on online simulator, works well, and by **design**, **only the first push button** will trigger the switch of the counter direction!
+
 # Reference
 
 [1] http://ecse324.ece.mcgill.ca/fall2021/_downloads/eb3bd46aeaebdd7c592e61dbc13dc1d3/Using_GIC.pdf
