@@ -123,3 +123,43 @@ Then flow chart of this `ISR` is shown below, it will be controlled by `counter_
 @ --------------------------------------------
 ```
 
+## Timer Module (Using Interrupt)
+
+https://github.com/dcheng69/Sensor_Network_and_Embedded_Systems/commit/ffb2b8fef84c75852e485cb1343551d20b192f05
+
+### IRQ Mode
+
+The Cortex-A9 processor enters IRQ mode in response to receiving an IRQ signal from the GIC. Before such interrupts can be used, software code has to perform a number steps: [1]
+
+1. Ensure that IRQ interrupts are disabled in the A9 processor, by setting the IRQ disable bit in the CPSR to 1.
+2. Configure the GIC. Interrupts for each I/O peripheral device that is connected to the GIC are identified by a unique interrupt ID.
+3. Configure each I/O peripheral device so that it can send IRQ interrupt requests to the GIC.
+4. Enable IRQ interrupts in the A9 processor, by setting the IRQ bit in the CPSR to 0.
+
+For more details, please reference the manuals listed in the Documentation section of this repository.
+
+### Timer Module Interrupt Setup
+
+1. First we identify the unique interrupt ID by reading the data sheet [2]:
+
+![image-20240309143148650](/home/clay/Share/ECE9047 Sensor Networks & Embedded Systems/Assignment/Sensor_Network_and_Embedded_Systems/Documentation/res/image-20240309143148650.png)
+
+2. Then we take a look at the manual at section 3.3 [2] to see what need to be done to set up the interrupt:
+
+![image-20240229001825724](/home/clay/Share/ECE9047 Sensor Networks & Embedded Systems/Assignment/Sensor_Network_and_Embedded_Systems/Documentation/res/image-20240229001825724.png)
+
+The `TO` bit in the Status register is set to `1` when the timer reaches a count value of `0`. It is possible to generate an interrupt when this occurs, by using the `ITO` bit in the Control register, which causes an interrupt request to be sent to `GIC` whenever TO becomes `1`. After an interrupt occurs, it can be cleared by writing any value into the Status register.
+
+### Test
+
+This program is controlled by several control variables, you can either modify and then recompile it, or you can just modify the memory directly as shown below and the program will behave accordingly.
+
+![image-20240311011953494](../Documentation/res/image-20240311011953494.png)
+
+![image-20240311011849652](../Documentation/res/image-20240311011849652.png)
+
+# Reference
+
+[1] http://ecse324.ece.mcgill.ca/fall2021/_downloads/eb3bd46aeaebdd7c592e61dbc13dc1d3/Using_GIC.pdf
+
+[2] http://www-ug.eecg.toronto.edu/desl/arm_SoC.html
