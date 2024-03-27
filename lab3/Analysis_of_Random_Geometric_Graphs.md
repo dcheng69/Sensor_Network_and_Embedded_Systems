@@ -22,5 +22,26 @@ So in order to make the graph fully connected, one node need to added to connect
 
 ![RGG_overview](../Documentation/res/RGG_overview.png)
 
+## Connectivity of the Network
 
+As mentioned above, the connective of the original network is not **fully-connected**!. The `k-connectivity` of the original network is `1` which is shown in the **Communication Range** subplot, according to the **Sensor Comm Heatmap-1**, there are a few possible locations to put the points, which are coloured in dark red. Further more, **Sensor Comm Heatmap-2** and **Sensor Comm Heatmap-3** shows two direction of putting the extra point.
 
+![Sensor_Comm_1](../Documentation/res/Sensor_Comm_1.png)
+
+Combined with the **Sensor Coverage Hetmap**  above, I decide to add one point that has the equal distance to the following four points:
+
+```bash
+# put one point that has equal distances to the following four points
+(0.187, 0.239), (0.002, 0.28), (0.103, 0.628), (0.296, 0.554)
+
+#For the x-coordinate:
+(0.187 + 0.002 + 0.103 + 0.296) / 4 = 0.147
+
+#For the y-coordinate:
+(0.239 + 0.28 + 0.628 + 0.554) / 4 = 0.42525
+
+#So, the centroid is approximately
+(0.147, 0.42525)
+```
+
+ After Adding this point, the `k-connectivity` is still `1`, but the whole network becomes **fully-connected**!![Add_One_Point](../Documentation/res/Add_One_Point.png)
