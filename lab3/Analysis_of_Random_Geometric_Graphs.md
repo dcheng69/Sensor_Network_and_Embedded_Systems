@@ -45,3 +45,9 @@ Combined with the **Sensor Coverage Hetmap**  above, I decide to add one point t
 ```
 
  After Adding this point, the `k-connectivity` is still `1`, but the whole network becomes **fully-connected**!![Add_One_Point](../Documentation/res/Add_One_Point.png)
+
+## Accurate Diagram of the Network
+
+After Adding one node to the `nodes.list` now let's take a look at the communication and the sensor coverage diagram, on the left hand side is the Sensor Coverage Hetmap, the darker the higher coverage rate, on the right hand side is the communicate range diagram, shows a fully connected diagram.
+
+![RGG_Overview_2](../Documentation/res/RGG_Overview_2.png)
