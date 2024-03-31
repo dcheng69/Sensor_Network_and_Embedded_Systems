@@ -48,6 +48,20 @@ Combined with the **Sensor Coverage Hetmap**  above, I decide to add one point t
 
 ## Accurate Diagram of the Network
 
-After Adding one node to the `nodes.list` now let's take a look at the communication and the sensor coverage diagram, on the left hand side is the Sensor Coverage Hetmap, the darker the higher coverage rate, on the right hand side is the communicate range diagram, shows a fully connected diagram.
+After Adding one node to the `nodes.list` now let's take a look at the communication and the sensor coverage diagram, on the left hand side is the `sensor coverage heatmap`, the darker the higher coverage rate, on the right hand side is the `communicate range diagram`, shows a fully connected diagram.
 
 ![RGG_Overview_2](../Documentation/res/RGG_Overview_2.png)
+
+## Coverage of the Network
+
+We have already demonstrate in the `Connectivity of the Network` that how we add one node `(0.147, 0.42525)` to make the network fully connected, and the reason of adding this node is that this node will largely enhance the coverage of this area, details can be shown in below diagram, the area with `0-coverage` is depicted with black colour! 
+
+![RGG_Coverage_1_](../Documentation/res/RGG_Coverage_1_.png)
+
+From above diagram we can tell that adding this node will not affect the area with `0` coverage, but will enhance the coverage of the areas depicted using red square. Further more, we can show the enhancement by adding below two diagrams, as we can see when make the area with the sensor coverage `<=2` coloured in black, we can see that by adding the extra one point we have successfully increased the robustness of the area designated by red squares.
+
+![RGG_Coverage_1_](../Documentation/res/RGG_Coverage_2_.png)
+
+However, if we take a look at the overall coverage diagram, we can see that after adding one extra node, the `k-coverage` of the network is still `0`, and when we blank more and more area by increasing the thresh-hold value of blacking, we can see that the coverage of this network has been located to specific areas that have higher density of sensor deployments. and we should notice that the connection part of the upper and lower part of the diagram will be separated once we lose this point from the network.
+
+![RGG_Overview_2](../Documentation/res/RGG_Overview_3.png)
