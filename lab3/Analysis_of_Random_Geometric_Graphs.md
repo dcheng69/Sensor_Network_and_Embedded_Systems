@@ -65,3 +65,13 @@ From above diagram we can tell that adding this node will not affect the area wi
 However, if we take a look at the overall coverage diagram, we can see that after adding one extra node, the `k-coverage` of the network is still `0`, and when we blank more and more area by increasing the thresh-hold value of blacking, we can see that the coverage of this network has been located to specific areas that have higher density of sensor deployments. and we should notice that the connection part of the upper and lower part of the diagram will be separated once we lose this point from the network.
 
 ![RGG_Overview_2](../Documentation/res/RGG_Overview_3.png)
+
+## Maximal Breach Distance & Maximal Breach Path
+
+According to the requirements of the assignment, we have to calculate the maximal breach distance travelling from the coordinate `(0, 0)` to the coordinate `(L, L)`, and the cost of moving along the boundary of the network is `0`!
+
+If we follow this rule, then the maximal breach distance would be `0` anyway! So I changed the question to be travelling from the point close to the `(0, 0)` to the point close to the `(L, L)`.
+
+So the maximal breach distance is `0.07` , the very last segment of the path.
+
+![voronoi_diagram_with_path](../lab3/voronoi_diagram_with_path.png)
