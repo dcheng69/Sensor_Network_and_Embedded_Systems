@@ -47,3 +47,22 @@ Your program should run in a **continuous loop**.
 You **must** use interrupts to handle the push button input. You may continue to use interrupts with the timer to
 handle the 1 s counter, or poll the timer for the 1 s interval. You must use the timer to count for 1 s.
 
+## Lab3
+
+### Objective
+
+Evaluating the Performance of a pseudo-randomly generated graph，as an abstraction of a wireless sensor network. The nodes information are listed in the `lab3/nodes.txt` file. The Sensor Coverage and Communication Range plots are described below:
+
+One thing to notice, the 25 nodes given are not fully connected!
+
+```bash
+# nodes
+0.439, 0.299
+0.187, 0.239
+# Communication Range
+√((0.299−0.239)^2 + (0.439−0.187)^2) = 0.259L
+```
+
+So in order to make the graph fully connected, one node need to added to connect two sub-nets.
+
+![RGG_overview](./Documentation/res/RGG_overview.png)
