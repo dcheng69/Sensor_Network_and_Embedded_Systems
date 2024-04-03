@@ -6,7 +6,7 @@ ID: 251350918
 
 ## Objectives
 
-###### Evaluating the Performance of a pseudo-randomly generated graph，as an abstraction of a wireless sensor network. The nodes information are listed in the `nodes.txt` file. The Sensor Coverage and Communication Range plots are described below:
+Evaluating the Performance of a pseudo-randomly generated graph，as an abstraction of a wireless sensor network. The nodes information are listed in the `nodes.txt` file. The Sensor Coverage and Communication Range plots are described below:
 
 One thing to notice, the 25 nodes given are not fully connected!
 
@@ -24,11 +24,11 @@ So in order to make the graph fully connected, one node need to added to connect
 
 ## Connectivity of the Network
 
-As mentioned above, the connective of the original network is not **fully-connected**!. The `k-connectivity` of the original network is `1` which is shown in the **Communication Range** subplot, according to the **Sensor Comm Heatmap-1**, there are a few possible locations to put the points, which are coloured in dark red. Further more, **Sensor Comm Heatmap-2** and **Sensor Comm Heatmap-3** shows two direction of putting the extra point.
+As mentioned above, the connective of the original network is not **fully-connected**!. The `k-connectivity` of the original network is `1` which is shown in the **Communication Range** subplot, according to the **`Sensor Comm Heatmap-1`**, there are a few possible locations to put the new point, which are coloured in dark red. Further more, **`Sensor Comm Heatmap-2`** and **`Sensor Comm Heatmap-3`** shows two direction of putting the extra point.
 
 ![Sensor_Comm_1](../Documentation/res/Sensor_Comm_1.png)
 
-Combined with the **Sensor Coverage Hetmap**  above, I decide to add one point that has the equal distance to the following four points:
+Combined with the **`Sensor Coverage Hetmap`**  above, I decide to add one point that has the equal distance to the following four points:
 
 ```bash
 # put one point that has equal distances to the following four points
@@ -60,9 +60,11 @@ We have already demonstrate in the `Connectivity of the Network` that how we add
 
 From above diagram we can tell that adding this node will not affect the area with `0` coverage, but will enhance the coverage of the areas depicted using red square. Further more, we can show the enhancement by adding below two diagrams, as we can see when make the area with the sensor coverage `<=2` coloured in black, we can see that by adding the extra one point we have successfully increased the robustness of the area designated by red squares.
 
+From the diagram below we can see that ares coloured in green are better covered, and the area coloured in black are worse covered. The distribution of  coverage is worse close to the edge of the area.
+
 ![RGG_Coverage_1_](../Documentation/res/RGG_Coverage_2_.png)
 
-However, if we take a look at the overall coverage diagram, we can see that after adding one extra node, the `k-coverage` of the network is still `0`, and when we blank more and more area by increasing the thresh-hold value of blacking, we can see that the coverage of this network has been located to specific areas that have higher density of sensor deployments. and we should notice that the connection part of the upper and lower part of the diagram will be separated once we lose this point from the network.
+Furthermore, if we take a look at the overall coverage diagram, we can see that after adding one extra node, the `k-coverage` of the network is still `0`, and when we blank more and more area by increasing the thresh-hold value of blacking, we can see that the coverage of this network has been located to specific areas that have higher density of sensor deployments. and we should notice that the connection part of the upper and lower part of the diagram will be separated once we lose this point from the network.
 
 ![RGG_Overview_2](../Documentation/res/RGG_Overview_3.png)
 
@@ -83,3 +85,9 @@ According to the requirement of the assignment, the starting point is the one cl
 The Maximal Support Distance is `0.06`, and the corresponding Maximal Support Path is shown in the graph below in red colour.
 
 ![Delaunay_Triangle_Diagram_with_Maximal_Support_Path](../lab3/Delaunay_Triangle_Diagram_with_Maximal_Support_Path.png)
+
+# Summary
+
+Employ the technique like `k-connectivity` and `k-coverage` we can evaluation the network in terms of connectivity and coverage. Furthermore, when we abstract the network to do further analysis, `Maximal Breach Path` is a technique based on geometry and `Maximal Support Breach Path` is a technique based on topology, once you build up the model of the problem, you can always use `BFS` or `DFS` to solve specific problems! 
+
+All the diagrams used in this assignment is submitted in this GitHub repository: https://github.com/dcheng69/Sensor_Network_and_Embedded_Systems/blob/dev-lab3/lab3/lab3.ipynb
