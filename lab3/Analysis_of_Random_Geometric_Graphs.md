@@ -6,7 +6,7 @@ ID: 251350918
 
 ## Objectives
 
-Evaluating the Performance of a pseudo-randomly generated graph，as an abstraction of a wireless sensor network. The nodes information are listed in the `nodes.txt` file. The Sensor Coverage and Communication Range plots are described below:
+###### Evaluating the Performance of a pseudo-randomly generated graph，as an abstraction of a wireless sensor network. The nodes information are listed in the `nodes.txt` file. The Sensor Coverage and Communication Range plots are described below:
 
 One thing to notice, the 25 nodes given are not fully connected!
 
@@ -75,3 +75,11 @@ If we follow this rule, then the maximal breach distance would be `0` anyway! So
 So the maximal breach distance is `0.07` , the very last segment of the path.
 
 ![voronoi_diagram_with_path](../lab3/voronoi_diagram_with_path.png)
+
+## Maximal Support Distance & Maximal Support Path
+
+According to the requirement of the assignment, the starting point is the one closest to `(0, 0)` and the ending point is the one closest to `(L, L)`. Calculating the `cost` of every edges of the `Delaunay triangles` and display it on the graph.
+
+The Maximal Support Distance is `0.06`, and the corresponding Maximal Support Path is shown in the graph below in red colour.
+
+![Delaunay_Triangle_Diagram_with_Maximal_Support_Path](../lab3/Delaunay_Triangle_Diagram_with_Maximal_Support_Path.png)
