@@ -66,3 +66,29 @@ One thing to notice, the 25 nodes given are not fully connected!
 So in order to make the graph fully connected, one node need to added to connect two sub-nets.
 
 ![RGG_overview](./Documentation/res/RGG_overview.png)
+
+## Lab4
+
+### Objective
+
+Design a wireless sensor network to track an animal population and monitor environmental conditions in a given habitat.
+
+The sociology and biology departments of the Brantford University of Teaching & Technology (BUTT) would like to study the distribution and behaviour of a particularly strange breed of animal: undergraduate engineering students. They have noticed that these students tend to cluster in the gloomy basements of the Engineering building. 
+
+### Requirements
+
+The sociology and biology departments have commissioned you to design a WSN to monitor the area to help
+collect the following data:
+
+* Your WSN should provide humidity sensors over the region. (Undergraduate engineering students have notoriously poor personal hygiene. Is this because they are sensitive to moisture?)
+* Your WSN should provide light sensors over the region. (Undergraduate engineering students are often nocturnal. Is this because they are sensitive to light?)
+* Your WSN will attempt to roughly track population migration by having pressure sensors on the floor that are triggered when someone steps on them. (Where do the undergraduate engineering students congregate? Are they social or antisocial within their own habitat?)
+* Your WSN needs to provide its own wireless communication. It cannot use BUTT’s campus WiFi network.
+* Your WSN nodes can only use external power if that node is at an existing power outlet. You can’t run an
+  extension cord or rewire the power grid.
+* Only one of the WSN nodes can connect to wired ethernet 
+* Only a node that is located at an existing Ethernet outlet can use the Ethernet. You can’t run an ethernet cable across the floor. One node must be connected this way in order to transmit the WSN data to the relevant researchers.
+* The sociology/biology researchers have little to no funding. Your WSN design has a budget of **$3000** for hardware (deployment cost is free)
+* Your network must be fully connected.
+* Your network should provide as much coverage as possible, within the cost constraints.
+* Your network should have as long an operating lifespan as possible, within the cost constraints.
