@@ -28,7 +28,7 @@ F 0 = 0, F 1 = 1, and F n = F n−1 + F n−2 for n > 1.
 
 **For the report of this assignment please refer to the following link:**
 
-https://github.com/dcheng69/Sensor_Network_and_Embedded_Systems/tree/main/lab1
+https://github.com/dcheng69/Sensor_Network_and_Embedded_Systems/blob/main/lab1/Lab1%20Fibonacci%20Array.md
 
 ## Lab2
 
