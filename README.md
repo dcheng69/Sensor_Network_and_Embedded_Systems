@@ -24,6 +24,12 @@ through displaying these 10 numbers.
 The Fibonacci numbers are defined as F n :
 F 0 = 0, F 1 = 1, and F n = F n−1 + F n−2 for n > 1.
 
+### Answer
+
+**For the report of this assignment please refer to the following link:**
+
+https://github.com/dcheng69/Sensor_Network_and_Embedded_Systems/tree/main/lab1
+
 ## Lab2
 
 ### Objective
@@ -47,6 +53,12 @@ Your program should run in a **continuous loop**.
 You **must** use interrupts to handle the push button input. You may continue to use interrupts with the timer to
 handle the 1 s counter, or poll the timer for the 1 s interval. You must use the timer to count for 1 s.
 
+### Answer
+
+**For the report of this assignment please refer to the following link:**
+
+https://github.com/dcheng69/Sensor_Network_and_Embedded_Systems/blob/main/lab2/Three-Digit%20counter.md
+
 ## Lab3
 
 ### Objective
@@ -66,6 +78,14 @@ One thing to notice, the 25 nodes given are not fully connected!
 So in order to make the graph fully connected, one node need to added to connect two sub-nets.
 
 ![RGG_overview](./Documentation/res/RGG_overview.png)
+
+### Answer
+
+**For the report of this assignment please refer to the following link:**
+
+https://github.com/dcheng69/Sensor_Network_and_Embedded_Systems/blob/main/lab3/Analysis_of_Random_Geometric_Graphs.md
+
+
 
 ## Lab4
 
@@ -92,3 +112,9 @@ collect the following data:
 * Your network must be fully connected.
 * Your network should provide as much coverage as possible, within the cost constraints.
 * Your network should have as long an operating lifespan as possible, within the cost constraints.
+
+### Answer
+
+**For the report of this assignment please refer to the following link:**
+
+https://github.com/dcheng69/Sensor_Network_and_Embedded_Systems/blob/main/lab4/WSN_Design.md
